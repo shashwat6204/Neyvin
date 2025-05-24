@@ -1,13 +1,6 @@
-import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { verify } from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'jobs.json');
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-
-export const runtime = 'nodejs';
+import { NextResponse } from "next/server";
+import fs from "fs/promises";
+import path from "path";
 
 interface Job {
   id: number;
@@ -17,127 +10,88 @@ interface Job {
   type: string;
   experience: string;
   description: string;
-  isActive: boolean;
   createdAt: string;
+  isActive: boolean;
 }
 
-interface NewJobInput {
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  experience: string;
-  description: string;
-}
+const jobsFilePath = path.join(process.cwd(), "data", "jobs.json");
 
-// Helper function to read jobs from file
 async function readJobs(): Promise<Job[]> {
   try {
-    const data = await fs.readFile(dataFilePath, 'utf-8');
-    return JSON.parse(data) as Job[];
-  } catch (error) {
+    const data = await fs.readFile(jobsFilePath, "utf-8");
+    return JSON.parse(data);
+  } catch {
     return [];
   }
 }
 
-// Helper function to write jobs to file
 async function writeJobs(jobs: Job[]): Promise<void> {
-  await fs.mkdir(path.join(process.cwd(), 'data'), { recursive: true });
-  await fs.writeFile(dataFilePath, JSON.stringify(jobs, null, 2));
+  await fs.writeFile(jobsFilePath, JSON.stringify(jobs, null, 2), "utf-8");
 }
 
-// Helper function to verify JWT token from cookies
-function verifyToken(): boolean {
-  const token = cookies().get('admin_token')?.value;
-  if (!token) {
-    throw new Error('Unauthorized');
-  }
-  try {
-    verify(token, JWT_SECRET);
-    return true;
-  } catch {
-    throw new Error('Unauthorized');
-  }
-}
-
-// GET /api/jobs - fetch all jobs
 export async function GET() {
-  try {
-    const jobs = await readJobs();
-    // Sort by createdAt descending
-    jobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return NextResponse.json(jobs);
-  } catch (error) {
-    console.error('Error fetching jobs:', error);
-    return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
-  }
+  const jobs = await readJobs();
+  return NextResponse.json(jobs);
 }
 
-// POST /api/jobs - create new job (admin only)
 export async function POST(request: Request) {
   try {
-    verifyToken();
+    const data = await request.json();
 
-    const body = (await request.json()) as NewJobInput;
+    if (
+      !data.title ||
+      !data.department ||
+      !data.location ||
+      !data.type ||
+      !data.experience ||
+      !data.description
+    ) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
     const jobs = await readJobs();
 
     const newJob: Job = {
-      id: jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) + 1 : 1,
-      title: body.title,
-      department: body.department,
-      location: body.location,
-      type: body.type,
-      experience: body.experience,
-      description: body.description,
+      id: jobs.length ? jobs[jobs.length - 1].id + 1 : 1,
+      title: data.title,
+      department: data.department,
+      location: data.location,
+      type: data.type,
+      experience: data.experience,
+      description: data.description,
+      createdAt: new Date().toISOString(),
       isActive: true,
-      createdAt: new Date().toISOString()
     };
 
-    jobs.push(newJob);
+    jobs.unshift(newJob);
+
     await writeJobs(jobs);
 
-    return NextResponse.json(newJob);
-  } catch (error) {
-    console.error('Error creating job:', error);
-    if ((error as Error).message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    return NextResponse.json({ error: 'Failed to create job' }, { status: 500 });
+    return NextResponse.json(newJob, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
 
-// DELETE /api/jobs?id=123 - delete job by id (admin only)
 export async function DELETE(request: Request) {
   try {
-    verifyToken();
-
     const { searchParams } = new URL(request.url);
-    const idParam = searchParams.get('id');
+    const idParam = searchParams.get("id");
+
     if (!idParam) {
-      return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
+      return NextResponse.json({ error: "Missing job id" }, { status: 400 });
     }
 
-    const id = parseInt(idParam);
-    if (isNaN(id)) {
-      return NextResponse.json({ error: 'Invalid Job ID' }, { status: 400 });
-    }
+    const id = Number(idParam);
 
-    const jobs = await readJobs();
-    const jobIndex = jobs.findIndex(job => job.id === id);
+    let jobs = await readJobs();
 
-    if (jobIndex === -1) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-    }
+    jobs = jobs.filter((job) => job.id !== id);
 
-    jobs.splice(jobIndex, 1);
     await writeJobs(jobs);
 
-    return NextResponse.json({ message: 'Job deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting job:', error);
-    if ((error as Error).message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 });
+    return NextResponse.json({ message: "Job deleted" });
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }
