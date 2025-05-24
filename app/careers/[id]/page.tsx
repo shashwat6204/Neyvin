@@ -77,7 +77,6 @@ export default function JobDetails({ params }: { params: { id: string } }) {
       }
 
       toast({
-        title: "Success!",
         description: "Your application has been submitted successfully.",
       });
       setShowForm(false);
@@ -85,9 +84,7 @@ export default function JobDetails({ params }: { params: { id: string } }) {
       setResume(null);
     } catch (error) {
       toast({
-        title: "Error",
         description: "Failed to submit application. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setApplying(false);
@@ -99,9 +96,7 @@ export default function JobDetails({ params }: { params: { id: string } }) {
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         toast({
-          title: "Error",
           description: "Resume file size must be less than 5MB",
-          variant: "destructive",
         });
         return;
       }

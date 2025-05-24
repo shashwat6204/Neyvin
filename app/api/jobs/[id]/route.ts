@@ -4,18 +4,31 @@ import path from 'path';
 
 const dataFilePath = path.join(process.cwd(), 'data', 'jobs.json');
 
-// Helper function to read jobs
-async function readJobs() {
+export const runtime = 'nodejs';
+
+interface Job {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  createdAt: string;
+  isActive: boolean;
+}
+
+// Helper function to read jobs from JSON file
+async function readJobs(): Promise<Job[]> {
   try {
     const data = await fs.readFile(dataFilePath, 'utf-8');
-    return JSON.parse(data);
+    return JSON.parse(data) as Job[];
   } catch (error) {
-    // If file doesn't exist, return empty array
     return [];
   }
 }
 
-// GET /api/jobs/[id] - Get a single job
+// GET /api/jobs/[id] - Get a single job by ID
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -41,7 +54,7 @@ export async function GET(
   }
 }
 
-// DELETE /api/jobs/[id] - Delete a job
+// DELETE /api/jobs/[id] - Delete a job by ID
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
@@ -68,4 +81,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}
