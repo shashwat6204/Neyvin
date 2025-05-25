@@ -93,11 +93,12 @@ export default function AdminJobs() {
     }
   };
 
+  // <-- Here is the fix: use path param, NOT query string
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this job posting?")) return;
 
     try {
-      const response = await fetch(`/api/jobs?id=${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -145,7 +146,9 @@ export default function AdminJobs() {
               <label className="block text-sm font-medium mb-2">Job Description</label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 required
                 rows={6}
               />

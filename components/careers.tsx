@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-// Interface for job type
+// Interface for job type (matches Supabase table fields)
 interface Job {
   id: number;
   title: string;
@@ -15,8 +15,8 @@ interface Job {
   type: string;
   experience: string;
   description: string;
-  createdAt: string;
-  isActive: boolean;
+  created_at: string;  // Note underscore naming to match DB field
+  is_active: boolean;
 }
 
 export default function Careers() {
@@ -26,12 +26,11 @@ export default function Careers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch jobs from API
+  // Fetch jobs from API once component mounts
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        // Replace with your actual API endpoint
         const response = await fetch('/api/jobs');
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
@@ -49,16 +48,18 @@ export default function Careers() {
     fetchJobs();
   }, []);
 
+  // Collect unique departments for filter dropdown
   const departments = ["All", ...Array.from(new Set(jobs.map(job => job.department)))];
 
+  // Filter jobs by search term and selected department, only active jobs
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.description.toLowerCase().includes(searchTerm.toLowerCase());
+                          job.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = selectedDepartment === "All" || job.department === selectedDepartment;
-    return matchesSearch && matchesDepartment && job.isActive;
+    return matchesSearch && matchesDepartment && job.is_active;
   });
 
-  // Loading state
+  // Loading state UI
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -67,7 +68,7 @@ export default function Careers() {
     );
   }
 
-  // Error state
+  // Error state UI
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -81,6 +82,7 @@ export default function Careers() {
     );
   }
 
+  // Main UI render
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-black dark:to-black">
       {/* Hero Section */}
@@ -201,31 +203,16 @@ export default function Careers() {
       </div>
 
       {/* Call to Action */}
-      <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 
-                    dark:from-black dark:via-black dark:to-black py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-black rounded-3xl p-8 md:p-12 
-                     shadow-2xl shadow-primary/10 dark:shadow-white/5 text-center
-                     border border-gray-100 dark:border-gray-800"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Don't See the Right Fit?
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              We're always looking for talented individuals to join our team. Send us your resume and we'll keep you in mind for future opportunities.
-            </p>
-            <Link href="/submit-cv">
-              <Button size="lg" className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white">
-                Submit Your CV
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
+          Don’t see a role that fits? Send us your CV!
+        </h2>
+        <Link href="/submit-your-cv" className="mt-6 inline-block">
+          <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-lg font-medium">
+            Submit Your CV
+          </Button>
+        </Link>
       </div>
     </div>
   );
-} 
+}
