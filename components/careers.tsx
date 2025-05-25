@@ -202,17 +202,22 @@ export default function Careers() {
         )}
       </div>
 
-      {/* Call to Action */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
-          Don’t see a role that fits? Send us your CV!
-        </h2>
-        <Link href="/submit-your-cv" className="mt-6 inline-block">
-          <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-lg font-medium">
-            Submit Your CV
-          </Button>
-        </Link>
-      </div>
+{/* Call to Action */}
+<div className="relative bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 py-20 mt-24">
+  <div className="max-w-3xl mx-auto text-center px-6">
+    <h2 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+      Don’t see a role that fits?
+    </h2>
+    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+      We're always on the lookout for great talent. If you think you'd be a good fit, send us your CV and we'll reach out when there's a match.
+    </p>
+    <Link href="/submit-cv" className="inline-block mt-8">
+      <Button className="px-8 py-4 text-lg bg-primary hover:bg-primary/90 text-white rounded-full shadow-lg transition">
+        Submit Your CV
+      </Button>
+    </Link>
+  </div>
+</div>
     </div>
   );
 }
