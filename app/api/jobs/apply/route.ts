@@ -6,15 +6,16 @@ import os from 'os';
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+   const formData = await request.formData();
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const currentCTC = formData.get('currentCTC') as string;
+    const expectedCTC = formData.get('expectedCTC') as string;
+    const noticePeriod = formData.get('noticePeriod') as string;
     const jobTitle = formData.get('jobTitle') as string;
     const jobId = formData.get('jobId') as string;
-    const file = formData.get('resume') as File;
-
+    const file = formData.get('resume') as File | null;
     // Validate the input
-    if (!name || !email || !jobTitle || !jobId) {
+    if (!name || !currentCTC || !expectedCTC || !noticePeriod || !jobTitle || !jobId) {
       return NextResponse.json(
         { error: 'Please fill in all fields' },
         { status: 400 }
@@ -60,7 +61,9 @@ export async function POST(request: NextRequest) {
             <p><strong>Position:</strong> ${jobTitle}</p>
             <p><strong>Job ID:</strong> ${jobId}</p>
             <p><strong>Applicant Name:</strong> ${name}</p>
-            <p><strong>Applicant Email:</strong> ${email}</p>
+            <p><strong>Current CTC:</strong> ${currentCTC}</p>
+            <p><strong>Expected CTC:</strong> ${expectedCTC}</p>
+            <p><strong>Notice Period:</strong> ${noticePeriod}</p>
             ${file ? `<p><strong>Resume:</strong> Attached (${file.name})</p>` : '<p><strong>Resume:</strong> Not provided</p>'}
           </div>
         </div>

@@ -1,5 +1,16 @@
 [
   {
+    "id": 3,
+    "title": "Developer",
+    "department": "IT",
+    "location": "Pune",
+    "type": "Full Time",
+    "experience": "2 years",
+    "description": "Need MERN stack developer",
+    "createdAt": "2025-05-24T07:09:13.176Z",
+    "isActive": true
+  },
+  {
     "id": 1,
     "title": "Frontend Developer",
     "department": "Engineering",

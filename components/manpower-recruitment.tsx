@@ -69,7 +69,8 @@ const staffingServices = [
         title: "International Coverage",
         points: [
           "US Staffing",
-          "UK Staffing"
+          "UK Staffing",
+          "Africa Staffing"
         ]
       }
     ]

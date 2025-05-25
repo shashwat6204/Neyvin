@@ -20,25 +20,6 @@ import FeatureCard from "./shared/feature-card";
 
 const consultingServices = [
   {
-    title: "Strategy Consulting",
-    icon: Lightbulb,
-    description: "Develop winning strategies and roadmaps for sustainable growth",
-    features: [
-      {
-        title: "Market Analysis",
-        description: "In-depth market research and competitive analysis to identify opportunities"
-      },
-      {
-        title: "Growth Strategy",
-        description: "Develop scalable business models and expansion strategies"
-      },
-      {
-        title: "Digital Strategy",
-        description: "Navigate digital transformation and technology adoption"
-      }
-    ]
-  },
-  {
     title: "IT Consulting",
     icon: Laptop2,
     description: "Expert guidance on technology implementation and optimization",
@@ -73,6 +54,71 @@ const consultingServices = [
       {
         title: "Cost Reduction",
         description: "Identify and execute cost optimization strategies"
+      }
+    ]
+  },
+  // {
+  //   title: "Strategy Consulting",
+  //   icon: Lightbulb,
+  //   description: "Develop winning strategies and roadmaps for sustainable growth",
+  //   features: [
+  //     {
+  //       title: "Market Analysis",
+  //       description: "In-depth market research and competitive analysis to identify opportunities"
+  //     },
+  //     {
+  //       title: "Growth Strategy",
+  //       description: "Develop scalable business models and expansion strategies"
+  //     },
+  //     {
+  //       title: "Digital Strategy",
+  //       description: "Navigate digital transformation and technology adoption"
+  //     }
+  //   ]
+  // },
+  {
+    title: "Human Resource Consulting",
+    icon: Users2,
+    description:
+      "Supporting critical workforce needs and ensuring SLA-driven results with ERP-backed strategic sourcing",
+    features: [
+      {
+        title: "Manpower Augmentation",
+        description:
+          "Full-cycle recruitment support from sourcing to onboarding and verification"
+      },
+      {
+        title: "Compensation & Benefits",
+        description:
+          "Administration and structuring of C&B aligned to market standards and internal policies"
+      },
+      {
+        title: "Payroll & Employee Helpdesk",
+        description:
+          "Seamless payroll outsourcing and employee support through dedicated helpdesk solutions"
+      }
+    ]
+  },
+  {
+    title: "Compliance Management",
+    icon: BarChart4,
+    description:
+      "Ensure organizational compliance with labor laws, tax regulations, and industry-specific mandates",
+    features: [
+      {
+        title: "Statutory Compliance",
+        description:
+          "Timely adherence to labor laws, PF, ESI, PT, and other regulatory requirements"
+      },
+      {
+        title: "Audit & Risk Assessment",
+        description:
+          "Periodic audits and compliance risk assessments to minimize legal exposure"
+      },
+      {
+        title: "Regulatory Updates & Advisory",
+        description:
+          "Stay ahead with proactive compliance updates and expert advisory"
       }
     ]
   }
@@ -148,33 +194,34 @@ export default function BusinessConsultingPage() {
         description="Comprehensive consulting solutions tailored to your business needs"
         variant="alternate"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {consultingServices.map((service, index) => (
-            <div
-              key={index}
-              className="bg-card rounded-xl p-8 shadow-lg border group hover:border-primary/50 transition-colors"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-primary">
-                  <service.icon className="w-8 h-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-foreground">{service.title}</h3>
-              </div>
-              <p className="text-muted-foreground mb-8">{service.description}</p>
-              
-              <div className="space-y-6">
-                {service.features.map((feature, idx) => (
-                  <div key={idx} className="space-y-2 group/feature">
-                    <h4 className="text-lg font-semibold text-foreground group-hover/feature:text-primary transition-colors">
-                      {feature.title}
-                    </h4>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-wrap justify-center gap-8">
+  {consultingServices.map((service, index) => (
+    <div
+      key={index}
+      className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(40%-1rem)] bg-card rounded-xl p-8 shadow-lg border group hover:border-primary/50 transition-colors"
+    >
+      <div className="flex items-center gap-4 mb-6">
+        <div className="text-primary">
+          <service.icon className="w-8 h-8" />
         </div>
+        <h3 className="text-2xl font-bold text-foreground">{service.title}</h3>
+      </div>
+      <p className="text-muted-foreground mb-8">{service.description}</p>
+
+      <div className="space-y-6">
+        {service.features.map((feature, idx) => (
+          <div key={idx} className="space-y-2 group/feature">
+            <h4 className="text-lg font-semibold text-foreground group-hover/feature:text-primary transition-colors">
+              {feature.title}
+            </h4>
+            <p className="text-muted-foreground text-sm">{feature.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+
       </Section>
 
       {/* Methodology Section */}

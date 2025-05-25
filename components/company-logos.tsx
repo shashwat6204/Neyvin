@@ -24,6 +24,12 @@ const companies = [
     link: "https://kognivera.com"
   },
   { 
+    name: "Laminaar Aviation", 
+    logo: "/images/companies/LaminaaraviationLogo.jpg",
+    description: "Aviation Software & Solutions",
+    link: "https://laminaar.com"
+  },
+  { 
     name: "SourceFuse", 
     logo: "/images/companies/SourceFuseLogo.jpg",
     description: "Cloud & Digital Transformation",
@@ -36,22 +42,10 @@ const companies = [
     link: "https://cerebraix.com"
   },
   { 
-    name: "Aheadrace", 
-    logo: "/images/companies/AheadraceLogo.jpg",
-    description: "Technology Innovation & Consulting",
-    link: "https://aheadrace.com"
-  },
-  { 
     name: "Humancloud", 
     logo: "/images/companies/HumancloudLogo.jpg",
     description: "HR Technology Solutions",
     link: "https://humancloud.co.in"
-  },
-  { 
-    name: "Anix Systems", 
-    logo: "/images/companies/AnixSystemsLogo.jpg",
-    description: "Software Development & Integration",
-    link: "https://anixsystems.com"
   },
   { 
     name: "Square Boat", 
@@ -59,12 +53,6 @@ const companies = [
     description: "Digital Product Development",
     link: "https://squareboat.com"
   },
-  { 
-    name: "Epitronx", 
-    logo: "/images/companies/EpitronxLogo.jpg",
-    description: "Technology Solutions & Services",
-    link: "https://epitronx.com"
-  }
 ];
 
 export default function CompanyLogos() {

@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Briefcase, MapPin, Clock, ArrowLeft, Loader2, Upload } from "lucide-react";
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  ArrowLeft,
+  Loader2,
+  Upload,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -28,8 +35,11 @@ export default function JobDetails({ params }: { params: { id: string } }) {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    email: ""
+    currentCTC: "",
+    expectedCTC: "",
+    noticePeriod: "",
   });
+
   const [resume, setResume] = useState<File | null>(null);
   const router = useRouter();
 
@@ -38,12 +48,12 @@ export default function JobDetails({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/jobs/${params.id}`);
         if (!response.ok) {
-          throw new Error('Job not found');
+          throw new Error("Job not found");
         }
         const data = await response.json();
         setJob(data);
       } catch (error) {
-        console.error('Error fetching job:', error);
+        console.error("Error fetching job:", error);
       } finally {
         setLoading(false);
       }
@@ -59,28 +69,35 @@ export default function JobDetails({ params }: { params: { id: string } }) {
     setApplying(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('jobTitle', job.title);
-      formDataToSend.append('jobId', job.id.toString());
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("jobTitle", job.title);
+      formDataToSend.append("jobId", job.id.toString());
+      formDataToSend.append("currentCTC", formData.currentCTC);
+      formDataToSend.append("expectedCTC", formData.expectedCTC);
+      formDataToSend.append("noticePeriod", formData.noticePeriod);
       if (resume) {
-        formDataToSend.append('resume', resume);
+        formDataToSend.append("resume", resume);
       }
 
-      const response = await fetch('/api/jobs/apply', {
-        method: 'POST',
+      const response = await fetch("/api/jobs/apply", {
+        method: "POST",
         body: formDataToSend,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        throw new Error("Failed to submit application");
       }
 
       toast({
         description: "Your application has been submitted successfully.",
       });
       setShowForm(false);
-      setFormData({ name: "", email: "" });
+      setFormData({
+        name: "",
+        currentCTC: "",
+        expectedCTC: "",
+        noticePeriod: "",
+      });
       setResume(null);
     } catch (error) {
       toast({
@@ -94,7 +111,8 @@ export default function JobDetails({ params }: { params: { id: string } }) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         toast({
           description: "Resume file size must be less than 5MB",
         });
@@ -116,9 +134,7 @@ export default function JobDetails({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen pt-24 flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
-        <Button onClick={() => router.push('/careers')}>
-          Back to Careers
-        </Button>
+        <Button onClick={() => router.push("/careers")}>Back to Careers</Button>
       </div>
     );
   }
@@ -127,7 +143,7 @@ export default function JobDetails({ params }: { params: { id: string } }) {
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <Link 
+          <Link
             href="/careers"
             className="inline-flex items-center text-gray-600 hover:text-primary mb-8"
           >
@@ -136,8 +152,10 @@ export default function JobDetails({ params }: { params: { id: string } }) {
           </Link>
 
           <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{job.title}</h1>
-            
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              {job.title}
+            </h1>
+
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center text-gray-600">
                 <Briefcase className="h-5 w-5 mr-2" />
@@ -162,8 +180,8 @@ export default function JobDetails({ params }: { params: { id: string } }) {
 
             <div className="mt-12">
               {!showForm ? (
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="w-full md:w-auto"
                   onClick={() => setShowForm(true)}
                 >
@@ -175,14 +193,36 @@ export default function JobDetails({ params }: { params: { id: string } }) {
                     type="text"
                     placeholder="Your Name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                   <Input
-                    type="email"
-                    placeholder="Your Email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    type="text"
+                    placeholder="Current CTC"
+                    value={formData.currentCTC}
+                    onChange={(e) =>
+                      setFormData({ ...formData, currentCTC: e.target.value })
+                    }
+                    required
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Expected CTC"
+                    value={formData.expectedCTC}
+                    onChange={(e) =>
+                      setFormData({ ...formData, expectedCTC: e.target.value })
+                    }
+                    required
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Notice Period"
+                    value={formData.noticePeriod}
+                    onChange={(e) =>
+                      setFormData({ ...formData, noticePeriod: e.target.value })
+                    }
                     required
                   />
                   <div className="relative">
@@ -197,15 +237,15 @@ export default function JobDetails({ params }: { params: { id: string } }) {
                       type="button"
                       variant="outline"
                       className="w-full"
-                      onClick={() => document.getElementById('resume')?.click()}
+                      onClick={() => document.getElementById("resume")?.click()}
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      {resume ? resume.name : 'Upload Resume (PDF, DOC, DOCX)'}
+                      {resume ? resume.name : "Upload Resume (PDF, DOC, DOCX)"}
                     </Button>
                   </div>
                   <div className="flex gap-4">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={applying}
                       className="flex-1"
                     >
@@ -215,11 +255,11 @@ export default function JobDetails({ params }: { params: { id: string } }) {
                           Submitting...
                         </>
                       ) : (
-                        'Submit Application'
+                        "Submit Application"
                       )}
                     </Button>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       onClick={() => {
                         setShowForm(false);
@@ -238,4 +278,4 @@ export default function JobDetails({ params }: { params: { id: string } }) {
       </div>
     </main>
   );
-} 
+}
