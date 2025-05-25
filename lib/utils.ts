@@ -14,7 +14,7 @@ type MetadataProps = {
 const defaultMetadata = {
   title: "Neyvin Technologies",
   description:
-    "Cross-platform app and web extension for personalized product profiling in food, drink, cosmetic, medicine, and pet food categories.",
+    "Neyvin Technologies offers expert HR services, payroll, regulatory compliance, staffing solutions, and seamless job applications with CV upload support.",
 };
 
 export const constructMetadata = ({
