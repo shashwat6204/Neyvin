@@ -18,7 +18,6 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    // Validate input
     if (
       !data.title ||
       !data.department ||
@@ -27,27 +26,31 @@ export async function POST(request: Request) {
       !data.experience ||
       !data.description
     ) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { error } = await supabase.from('jobs').insert([
-      {
-        title: data.title,
-        department: data.department,
-        location: data.location,
-        type: data.type,
-        experience: data.experience,
-        description: data.description,
-        is_active: true,
-      }
-    ]);
+    const { data: created, error } = await supabase
+      .from("jobs")
+      .insert([
+        {
+          title: data.title,
+          department: data.department,
+          location: data.location,
+          type: data.type,
+          experience: data.experience,
+          description: data.description,
+          is_active: true,
+        },
+      ])
+      .select()
+      .single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: 'Job added successfully' }, { status: 201 });
+    return NextResponse.json(created, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 }

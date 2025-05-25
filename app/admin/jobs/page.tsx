@@ -17,8 +17,8 @@ interface Job {
   type: string;
   experience: string;
   description: string;
-  createdAt: string;
-  isActive: boolean;
+  created_at: string;
+  is_active: boolean;
 }
 
 export default function AdminJobs() {
@@ -75,8 +75,8 @@ export default function AdminJobs() {
         throw new Error("Failed to create job");
       }
 
-      const newJob = await response.json();
-      setJobs([newJob, ...jobs]);
+      const created = await response.json();
+      setJobs([created, ...jobs]);
 
       toast({ description: "Job posting created successfully" });
 
@@ -93,7 +93,6 @@ export default function AdminJobs() {
     }
   };
 
-  // <-- Here is the fix: use path param, NOT query string
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this job posting?")) return;
 
