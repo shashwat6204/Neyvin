@@ -8,6 +8,7 @@ import { Trash2, LogOut, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useTheme } from "next-themes";
 
 interface Job {
   id: number;
@@ -23,6 +24,7 @@ interface Job {
 
 export default function AdminJobs() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -149,10 +151,26 @@ export default function AdminJobs() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      router.push("/admin/login");
-      router.refresh();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      
+      // Save the current theme
+      const currentTheme = theme;
+      
+      // Clear localStorage
+      window.localStorage.clear();
+      
+      // Restore the theme setting
+      if (currentTheme) {
+        window.localStorage.setItem('theme', currentTheme);
+      }
+      
+      // Force a hard navigation to the login page
+      window.location.href = '/admin/login';
     } catch (error) {
+      console.error('Error logging out:', error);
       toast.error("Error logging out");
     }
   };
