@@ -38,9 +38,7 @@ export default function ServiceSection() {
         className="py-20 px-6 sm:px-12 lg:px-20 transition-colors duration-300 bg-background min-h-screen"
       >
         <div className="max-w-7xl mx-auto">
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-center mb-12 text-foreground"
-          >
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 text-foreground">
             Our Core Services
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -57,17 +55,15 @@ export default function ServiceSection() {
                     className="object-cover object-center"
                   />
                 </div>
-                <div className="p-6">
-                  <h3
-                    className="text-xl font-semibold mb-2 text-foreground"
-                  >
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="text-xl font-semibold mb-2 text-foreground">
                     {service.title}
                   </h3>
-                  <p className="text-base mb-4 flex-grow text-muted-foreground">
+                  <p className="text-base mb-4 text-muted-foreground flex-grow">
                     {service.description}
                   </p>
                   <Link
-                    href={service.href}
+                    href={service.href as any}
                     className="mt-4 font-medium text-primary hover:text-primary/80 transition-colors duration-300"
                   >
                     Learn more →

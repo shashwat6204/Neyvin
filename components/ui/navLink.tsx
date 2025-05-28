@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { usePathname } from "next/navigation";
 
 interface NavLinkProps {
-  href: string;
+  href: Route;
   isExternal?: boolean;
   children: React.ReactNode;
 }
@@ -19,7 +20,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 
   return (
     <Link
-      href={href}
+      href={href as Route}
       className={`text-nowrap align-middle text-gray-800 transition duration-150 ease-in-out hover:text-primary-800 ${
         isActive ? "text-primary-800" : ""
       }`}
@@ -36,7 +37,7 @@ const NavLink: React.FC<NavLinkProps> = ({
 // Navigation component to render the list of navigation links
 const Navigation: React.FC = () => {
   const navLinks = [
-    { label: "Marketplace", path: "/marketplace", isExternal: false },
+    { label: "Marketplace", path: "/marketplace" as Route, isExternal: false },
   ];
 
   return (

@@ -1,5 +1,7 @@
+"use client";
+
 import { ReactNode, forwardRef, ComponentPropsWithoutRef } from "react";
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,6 +15,7 @@ import DarkModeToggle from "./darkmode-toggle";
 import MobileMenu from "./mobile-menu";
 import Image from "next/image";
 import CompanyLogo from "@/public/images/neyvinLogo.jpg";
+
 const DropdownNavItem = ({
   trigger,
   children,
@@ -30,7 +33,7 @@ const DropdownNavItem = ({
 
 const ListItem = forwardRef<
   HTMLAnchorElement,
-  ComponentPropsWithoutRef<"a"> & { title: string; href: string }
+  ComponentPropsWithoutRef<"a"> & { title: string; href: LinkProps<string>['href'] }
 >(({ className, title, children, href, ...props }, ref) => (
   <li>
     <NavigationMenuLink asChild>
@@ -118,8 +121,7 @@ export default function Header() {
                                 href="/services/business-consulting"
                                 title="Business Consulting & Advisory"
                               >
-                                Strategic guidance across IT, HR, finance, and
-                                more.
+                                Strategic guidance across IT, HR, finance, and more.
                               </ListItem>
                               <ListItem
                                 href="/services/manpower-recruitment"
@@ -140,7 +142,6 @@ export default function Header() {
                               >
                                 End-to-end delivery for complex initiatives.
                               </ListItem>
-                              {/* Add more items here as needed */}
                             </ul>
                           </div>
                         </div>

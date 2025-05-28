@@ -3,21 +3,25 @@ import nodemailer from 'nodemailer';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+
   try {
-   const formData = await request.formData();
+    const formData = await request.formData();
     const name = formData.get('name') as string;
+    const jobId = formData.get('jobId') as string;
+    const jobTitle = formData.get('jobTitle') as string;
     const currentCTC = formData.get('currentCTC') as string;
     const expectedCTC = formData.get('expectedCTC') as string;
     const noticePeriod = formData.get('noticePeriod') as string;
-    const jobTitle = formData.get('jobTitle') as string;
-    const jobId = formData.get('jobId') as string;
     const file = formData.get('resume') as File | null;
-    // Validate the input
-    if (!name || !currentCTC || !expectedCTC || !noticePeriod || !jobTitle || !jobId) {
+
+    if (!name || !jobId || !jobTitle || !currentCTC || !expectedCTC || !noticePeriod) {
       return NextResponse.json(
-        { error: 'Please fill in all fields' },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
@@ -52,7 +56,7 @@ export async function POST(request: NextRequest) {
     // Email content
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Using the same email as other communications
+      to: process.env.EMAIL_USER, // Using the same email as sender
       subject: `New Job Application: ${jobTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">

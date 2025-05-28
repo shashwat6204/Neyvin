@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  experimental: {
+    typedRoutes: true,
+  },
+};
 
 const nextConfiguration = {
   ...nextConfig,

@@ -1,56 +1,76 @@
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
 
 export async function GET() {
-  const { data, error } = await supabase
-    .from('jobs')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const supabase = createRouteHandlerClient({ cookies });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const { data: jobs, error } = await supabase
+      .from('jobs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json(jobs);
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    return NextResponse.json({ error: 'Error fetching jobs' }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
-  try {
-    const data = await request.json();
+  const supabase = createRouteHandlerClient({ cookies });
 
-    if (
-      !data.title ||
-      !data.department ||
-      !data.location ||
-      !data.type ||
-      !data.experience ||
-      !data.description
-    ) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const { data: created, error } = await supabase
-      .from("jobs")
-      .insert([
-        {
-          title: data.title,
-          department: data.department,
-          location: data.location,
-          type: data.type,
-          experience: data.experience,
-          description: data.description,
-          is_active: true,
-        },
-      ])
+    const json = await request.json();
+
+    // Validate required fields
+    const requiredFields = ['title', 'department', 'location', 'type', 'experience', 'description'];
+    for (const field of requiredFields) {
+      if (!json[field]) {
+        return NextResponse.json(
+          { error: `Missing required field: ${field}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Add default values
+    const jobData = {
+      ...json,
+      is_active: true
+    };
+
+    const { data, error } = await supabase
+      .from('jobs')
+      .insert([jobData])
       .select()
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Error creating job:', error);
+      throw error;
     }
 
-    return NextResponse.json(created, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error('Error in POST /api/jobs:', error);
+    return NextResponse.json(
+      { error: error.message || 'Error creating job' },
+      { status: 500 }
+    );
   }
 }

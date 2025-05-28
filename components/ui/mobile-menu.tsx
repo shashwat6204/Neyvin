@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { Menu, MoonStar, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "./button";
@@ -14,15 +15,16 @@ import {
 } from "./sheet";
 
 interface MobileNavItemProps {
-  href: string;
+  href: Route;
   children: React.ReactNode;
+  className?: string;
 }
 
-const MobileNavItem = ({ href, children }: MobileNavItemProps) => (
+const MobileNavItem = ({ href, children, className }: MobileNavItemProps) => (
   <li>
     <Link
-      href={href}
-      className="flex w-full items-center rounded-md p-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+      href={href as Route}
+      className={`flex w-full items-center rounded-md p-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${className || ''}`}
     >
       {children}
     </Link>
@@ -61,11 +63,11 @@ export default function MobileMenu() {
             </SheetHeader>
             <nav className="space-y-1" aria-label="Mobile menu">
               <ul>
-                <MobileNavItem href="/">Home</MobileNavItem>
-                <MobileNavItem href="/services">Services</MobileNavItem>
-                <MobileNavItem href="/careers">Careers</MobileNavItem>
-                <MobileNavItem href="/about">About</MobileNavItem>
-                <MobileNavItem href="/contact">Contact</MobileNavItem>
+                <MobileNavItem href={"/" as Route}>Home</MobileNavItem>
+                <MobileNavItem href={"/services" as Route}>Services</MobileNavItem>
+                <MobileNavItem href={"/careers" as Route}>Careers</MobileNavItem>
+                <MobileNavItem href={"/about" as Route}>About</MobileNavItem>
+                <MobileNavItem href={"/contact" as Route}>Contact</MobileNavItem>
               </ul>
             </nav>
           </div>

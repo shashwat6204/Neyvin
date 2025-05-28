@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, startTransition } from 'react';
+import { useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,58 +10,102 @@ import { toast } from 'sonner';
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (res.ok) {
-        toast.success('Login successful');
-        startTransition(() => {
-          router.push('/admin/jobs');
-        });
-      } else {
-        toast.error('Invalid credentials');
+      if (error) {
+        toast.error(error.message);
+        return;
       }
-    } catch {
-      toast.error('An error occurred. Please try again.');
+
+      if (!data?.user) {
+        toast.error('No user found');
+        return;
+      }
+
+      // Check if user is admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile?.role !== 'admin') {
+        toast.error('Access denied: Not an admin');
+        await supabase.auth.signOut();
+        return;
+      }
+
+      router.push('/admin/jobs');
+      router.refresh();
+    } catch (error) {
+      toast.error('An error occurred');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-b from-gray-50 to-white dark:from-black dark:to-black">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-black rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-800">
-          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">Admin Portal</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Admin Login
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email
+              <label htmlFor="email" className="sr-only">
+                Email address
               </label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+              />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="password" className="sr-only">
                 Password
               </label>
-              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+              />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign in'}
+          </div>
+
+          <div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

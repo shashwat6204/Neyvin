@@ -1,19 +1,42 @@
-// middleware.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('admin_token')?.value;
+export async function middleware(request: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req: request, res });
+  const { pathname } = request.nextUrl;
 
-  const isProtected = request.nextUrl.pathname.startsWith('/admin') &&
-                      !request.nextUrl.pathname.startsWith('/admin/login');
+  // Refresh session if expired
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (isProtected && !token) {
+  // If user is not logged in and trying to access protected route
+  if (!session && pathname.startsWith('/admin') && pathname !== '/admin/login') {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
-  return NextResponse.next();
+  // If user is logged in, verify they are an admin
+  if (session?.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    // If not an admin, redirect to login
+    if (profile?.role !== 'admin' && pathname !== '/admin/login') {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+
+    // If admin trying to access login page, redirect to jobs
+    if (profile?.role === 'admin' && pathname === '/admin/login') {
+      return NextResponse.redirect(new URL('/admin/jobs', request.url));
+    }
+  }
+
+  return res;
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*']
 };
